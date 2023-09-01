@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+body {
+  font-size: 13px;
+  line-height: 1.2;
+  padding: 15px;
+  margin: 0;
+  max-width: 300px;
+  margin: auto;
+}
+
+p {
+  margin: 0 0 5px;
+}
+
+textarea {
+  width: 90%;
+  margin-bottom: 10px;
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type=number] {
+  width: 20%;
+  margin-bottom: 5px;
+  font-size: 12px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type=text] {
+  width: 90%;
+  margin-bottom: 5px;
+  font-size: 12px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+select {
+  width: 30%;
+  margin-bottom: 5px;
+  font-size: 12px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#waitingMessage {
+  display: none;
+  background-color: #f9edbe;
+  border: 1px solid #f0c36d;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #856404;
+  font-size: 14px;
+}
+
+#fixedMessage {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(240, 240, 240, 0.8);
+  border: 1px solid #f0c36d;
+  border-radius: 10px;
+  padding: 20px;
+  color: #856404;
+  text-align: left;
+  font-size: 13px;
+}
+</style>
+  </head>
+<body>
+    <p>
+      AIのモデル：
+      <select id="model">
+        <option value="gpt-3.5-turbo-16k" selected>GPT-3.5</option>
+        <option value="gpt-4">GPT-4</option>
+      </select>
+    </p>
+    <p>
+      AIの創造性：
+      <select id="creativity">
+        <option value="low">低め</option>
+        <option value="mid" selected>標準</option>
+        <option value="high">高め</option>
+      </select>
+    </p>
+
+    <h3>1. 文章を自動で作成</h3>
+    <p>どんなトピックをどんな風に：</p>
+    <textarea
+      id="prompt"
+      rows="7"
+      cols="40"
+      placeholder="アジャイル開発の内製化を支援するサービスのパンフレット。サービス名は「ワクワク内製化支援」200文字程度。メリットの一覧。競合との比較表。見出しやリスト、表はマークダウンで。"
+    ></textarea>
+    <button onclick="generateTextFromPrompt()">作成する </button>
+    <hr />
+    <h3>2. 選択したテキストから画像を作成</h3>
+    <p>
+    <label for="editable-select">画像のスタイル：</label>
+    <input type="text" id="imageCaption" name="style" list="styles">
+    <datalist id="styles">
+      <option value="Photographic">
+      <option value="Anime">
+      <option value="Digital art">
+      <option value="Comic book">
+      <option value="Fantasy art">
+      <option value="Analog film">
+      <option value="Neon punk">
+      <option value="Isometric">
+      <option value="Low poly">
+      <option value="Origami">
+      <option value="Line art">
+      <option value="Craft clay">
+      <option value="Cinematic">
+      <option value="3D model">
+      <option value="Pixel art">
+      <option value="Enhance">
+    </datalist>
+    </p>
+    <p>
+      画像の質：
+      <select id="imageQuality">
+        <option value="low">低め</option>
+        <option value="mid" selected>標準</option>
+        <option value="high">高め</option>
+      </select>
+    </p>
+
+    <button onclick="generateImageFromSelectedText()">作成する</button>
+    <hr />
+    <h3>3. 選択したテキストから文章を作成</h3>
+    <textarea
+      id="subPrompt"
+      rows="3"
+      cols="40"
+      placeholder="100文字程度に要約してください。"
+    ></textarea>
+    <button onclick="generateTextFromSelectedText()">作成する</button>
+
+    <p id="waitingMessage">お待ちください...処理中です。</p>
+<script>
+  // ボタンを無効化する関数
+  var buttons = document.querySelectorAll('button');
+
+  function disableButtons() {
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = true;
+    }
+  }
+
+  // ボタンを有効化する関数
+  function enableButtons() {
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = false;
+    }
+  }
+
+  function generateTextFromPrompt() {
+    var inputText = document.getElementById('prompt').value;
+    var creativity = document.getElementById('creativity').value;
+    var model = document.getElementById('model').value;
+
+    disableButtons(); // ボタンを無効にする
+
+    document.getElementById('waitingMessage').style.display = 'block';
+    google.script.run
+      .withSuccessHandler(function() {
+        enableButtons(); // ボタンを有効にする
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .withFailureHandler(function(e) {
+        enableButtons(); // ボタンを有効にする
+        alert('再度実行してください：' + e);
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .generateTextFromPrompt(inputText, creativity, model);
+  }
+
+  function generateImageFromSelectedText() {
+    var imageCaption = document.getElementById('imageCaption').value;
+    var imageQuality = document.getElementById('imageQuality').value;
+
+    disableButtons(); // ボタンを無効にする
+
+    document.getElementById('waitingMessage').style.display = 'block';
+    google.script.run
+      .withSuccessHandler(function() {
+        enableButtons(); // ボタンを有効にする
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .withFailureHandler(function(e) {
+        enableButtons(); // ボタンを有効にする
+        alert('再度実行してください：' + e);
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .generateImageFromSelectedText(imageCaption, imageQuality);
+  }
+  function generateTextFromSelectedText() {
+    var subPrompt = document.getElementById('subPrompt').value;
+    var creativity = document.getElementById('creativity').value;
+    var model = document.getElementById('model').value;
+ 
+    disableButtons(); // ボタンを無効にする
+
+    document.getElementById('waitingMessage').style.display = 'block';
+    google.script.run
+      .withSuccessHandler(function() {
+        enableButtons(); // ボタンを有効にする
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .withFailureHandler(function(e) {
+        enableButtons(); // ボタンを有効にする
+        alert('再度実行してください：' + e);
+        document.getElementById('waitingMessage').style.display = 'none';
+      })
+      .generateTextFromSelectedText(subPrompt, creativity, model);
+  }
+
+</script>
+
+
+  </body>
+  
+</html>

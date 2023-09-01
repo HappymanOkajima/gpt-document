@@ -1,0 +1,32 @@
+{
+  "timeZone": "Asia/Tokyo",
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "urlFetchWhitelist": [
+    "https://api.openai.com/v1/images/generations",
+    "https://api.openai.com/v1/chat/completions",
+    "https://oaidalleapiprodscus.blob.core.windows.net/",
+    "https://api.stability.ai/"
+  ],
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/script.container.ui",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/spreadsheets"
+  ],
+  "addOns": {
+    "common": {
+      "name": "GPTドキュメントアドオン",
+      "logoUrl": "YOUR_LOGO_URL",
+      "layoutProperties": {
+        "primaryColor": "#4285f4",
+        "secondaryColor": "#93d5ed"
+      }
+    },
+    "docs": {
+      "homepageTrigger": {
+        "runFunction": "onOpen"
+      }
+    }
+  }
+}
