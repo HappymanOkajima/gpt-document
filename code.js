@@ -11,7 +11,7 @@ function onOpen() {
 }
 
 function showSidebar() {
-  const ver = "(ver:1)";
+  const ver = "(ver:1.1)";
   const html = HtmlService.createHtmlOutputFromFile('sidebar.html')
       .setTitle('GPTドキュメント' + ver)
       .setWidth(300);
@@ -495,8 +495,8 @@ function getImagePrompt_(targetText) {
 function generateImageFromDallE_(prompt, imageCaption) {
   // 必要な情報をセットアップします
   const apiUrl = "https://api.openai.com/v1/images/generations";
-  const model = "image-alpha-001";
-  const size = "512x512";
+  const model = "dall-e-3";
+  const size = "1024x1024";
   const responseFormat = "url";
 
   // APIリクエストのヘッダーとペイロードを設定します
@@ -510,6 +510,7 @@ function generateImageFromDallE_(prompt, imageCaption) {
       model: model,
       prompt: prompt + " " + imageCaption,
       size: size,
+      quality: "hd",
       response_format: responseFormat
     })
   };

@@ -81,10 +81,11 @@ select {
   </head>
 <body>
     <p>
-      AIのモデル：
+      文章生成モデル：
       <select id="model">
-        <option value="gpt-3.5-turbo-16k" selected>GPT-3.5</option>
+        <option value="gpt-3.5-turbo-16k">GPT-3.5</option>
         <option value="gpt-4">GPT-4</option>
+        <option value="gpt-4o" selected>GPT-4o</option>        
       </select>
     </p>
     <p>
@@ -130,11 +131,11 @@ select {
     </datalist>
     </p>
     <p>
-      画像の質：
+      画像生成モデル：
       <select id="imageQuality">
-        <option value="low">低め</option>
-        <option value="mid" selected>標準</option>
-        <option value="high">高め</option>
+        <option value="low" selected>DALL-E-3</option>
+        <option value="mid">stable-diffusion-xl-1024-v1-0</option>
+        <option value="high">stable-diffusion-xl-beta-v2-2-2</option>
       </select>
     </p>
 
