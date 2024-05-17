@@ -21,3 +21,14 @@ function test_generateImageFromSelectedText() {
 
   generateImageFromSelectedText("Photograpic","low");
 }
+function test_addTextToDocument() {
+  let text = "今日は**いい天気**ですね";
+  addTextToDocument_(text);
+  text = "**いい天気**ですね";
+  addTextToDocument_(text);
+  text = "今日**いい天気**";
+  addTextToDocument_(text);
+  text = "今日はいい天気";
+  addTextToDocument_(text);
+}
+

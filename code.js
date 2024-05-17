@@ -11,7 +11,7 @@ function onOpen() {
 }
 
 function showSidebar() {
-  const ver = "(ver:1.1)";
+  const ver = "(ver:1.2)";
   const html = HtmlService.createHtmlOutputFromFile('sidebar.html')
       .setTitle('GPTドキュメント' + ver)
       .setWidth(300);
@@ -176,6 +176,7 @@ function getParentParagraph_() {
  * - ヘッダは '#' で始まる行として認識され、適切な見出しレベルでドキュメントに追加されます。
  * - リストアイテムは '*'、'+'、または '-' で始まる行として認識されます。
  * - テーブルは '|' を含む行として認識され、Markdown形式のテーブルとして扱われます。
+ * - **で囲まれる文字は太字と認識され、該当する範囲の文字は太字として出力されます。
  */
 function addTextToDocument_(text, targetParagraph) {
   const doc = DocumentApp.getActiveDocument();
@@ -203,11 +204,13 @@ function addTextToDocument_(text, targetParagraph) {
       // Append heading
       const heading = body.insertParagraph(paragraphIndex++, headingText);
       heading.setHeading(DocumentApp.ParagraphHeading["HEADING" + headingLevel]);
+      applyBoldFormatting_(heading.editAsText());
     }
     // Check for unordered lists
-    else if (paragraph.startsWith('*') || paragraph.startsWith('+') || paragraph.startsWith('-')) {
+    else if (paragraph.startsWith('* ') || paragraph.startsWith('+ ') || paragraph.startsWith('- ')) {
       const listItem = body.insertListItem(paragraphIndex++, paragraph.slice(1).trim());
       listItem.setGlyphType(DocumentApp.GlyphType.BULLET);
+      applyBoldFormatting_(listItem.editAsText());
     }
     // Check for tables
     else if (paragraph.includes('|')) {
@@ -233,9 +236,10 @@ function addTextToDocument_(text, targetParagraph) {
       tableData = [];
       inTable = false;
     }
-    // Append plain paragraph
+    // Normal text
     else {
-      body.insertParagraph(paragraphIndex++, paragraph);
+      const paragraphElement = body.insertParagraph(paragraphIndex++, paragraph);
+      applyBoldFormatting_(paragraphElement.editAsText());
     }
   }
 
@@ -243,6 +247,26 @@ function addTextToDocument_(text, targetParagraph) {
   if (inTable) {
     appendTableToDocument_(body, tableData, paragraphIndex++);
   }
+}
+
+function applyBoldFormatting_(textElement) {
+  const boldRegex = /\*\*(.*?)\*\*/g;
+  let match;
+  let matches = [];
+
+  // Store the matches
+  while ((match = boldRegex.exec(textElement.getText())) !== null) {
+    matches.push({ start: match.index, end: match.index + match[1].length });
+  }
+
+  // Remove the '**' from the text
+  const cleanedText = textElement.getText().replace(boldRegex, '$1');
+  textElement.setText(cleanedText);
+
+  // Apply bold formatting
+  matches.forEach(match => {
+    textElement.setBold(match.start, match.end - 1, true);
+  });
 }
 
 /**
